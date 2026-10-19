@@ -147,13 +147,31 @@ Cline 的网关前面有两套路由，钉住字段的写法不同：
 3. 在「上游渠道」里填渠道名（逗号分隔，按尝试顺序），「排除」填不想用的渠道，「排序」选 cost / ttft / tps；
 4. 点「保存钉住」。
 
-渠道名先让 agent 调用 `probe` 工具探测，例如：
+渠道名先探测，见下面的「命令行直接探测」。页面只编辑插件 options；保存后如果请求仍在用旧规则，到 **插件 → 已安装** 把本插件关掉再打开。页面不联网，也不读取插件的探测状态，所以它只负责「钉住规则」，不负责「发现渠道」。
 
-```text
-magpie_probe model=glm-5.3
+### 不配置 MCP：命令行直接探测
+
+仓库里带了一个很小的 MCP 客户端，不需要给 agent 配 MCP：
+
+```powershell
+cd D:\AI\chajian\magpie
+
+# 看实际工具名
+node scripts\magpie-tool.mjs --list
+
+# 探测 glm-5.3 有哪些渠道
+node scripts\magpie-tool.mjs magpie_probe model=glm-5.3
+
+# 逐个校验渠道（探测之后）
+node scripts\magpie-tool.mjs magpie_validate model=glm-5.3
+
+# 保存钉住（可选）
+node scripts\magpie-tool.mjs magpie_pin model=glm-5.3 upstreams=openai-compatible-private pinMode=strict
 ```
 
-页面只编辑插件 options；保存后如果请求仍在用旧规则，到 **插件 → 已安装** 把本插件关掉再打开。页面不联网，也不读取插件的探测状态，所以它只负责「钉住规则」，不负责「发现渠道」。
+参数用 `key=value`，数组用逗号分隔（如 `upstreams=zai,baseten`），也接受一个 JSON 对象。脚本只是向 `http://127.0.0.1:3425/mcp/magpie/tools` 发 MCP 请求；magpie 没启动时会报连接失败。
+
+从 GitHub 安装时，工具名前缀是 `magpie-cline-pass_`；先用 `--list` 看实际名字，再把上面的 `magpie_probe` 换成 `magpie-cline-pass_probe`。脚本在包的 `scripts/magpie-tool.mjs` 里。
 
 ### 三种工具流程
 
