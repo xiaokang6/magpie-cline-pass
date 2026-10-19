@@ -1,7 +1,7 @@
 {
-  "name": "cline-pass-auth",
-  "version": "0.1.1",
-  "description": "Cline Pass for magpie: subscription models with per-model upstream probing, pinning and pre-first-token failover.",
+  "name": "magpie-cline-pass",
+  "version": "0.1.2",
+  "description": "Cline Pass for magpie, based on dsh-cline-pass: subscription models with per-model upstream probing, pinning and pre-first-token failover.",
   "type": "module",
   "main": "./index.mjs",
   "exports": {
@@ -28,11 +28,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaokang6/cline-pass-auth.git"
+    "url": "git+https://github.com/xiaokang6/magpie-cline-pass.git"
   },
-  "homepage": "https://github.com/xiaokang6/cline-pass-auth#readme",
+  "homepage": "https://github.com/xiaokang6/magpie-cline-pass#readme",
   "bugs": {
-    "url": "https://github.com/xiaokang6/cline-pass-auth/issues"
+    "url": "https://github.com/xiaokang6/magpie-cline-pass/issues"
   },
   "engines": {
     "node": ">=20.3.0"

@@ -1,6 +1,6 @@
-# cline-pass-auth
+# magpie-cline-pass
 
-[![test](https://github.com/xiaokang6/cline-pass-auth/actions/workflows/test.yml/badge.svg)](https://github.com/xiaokang6/cline-pass-auth/actions/workflows/test.yml)
+[![test](https://github.com/xiaokang6/magpie-cline-pass/actions/workflows/test.yml/badge.svg)](https://github.com/xiaokang6/magpie-cline-pass/actions/workflows/test.yml)
 
 把 **Cline Pass** 订阅接入 [magpie](https://usemagpie.ai) 的供应商插件。
 
@@ -12,6 +12,17 @@
 - 用 magpie 自己的 `tool` 钩子暴露一组管理工具，所有 agent 都能通过 magpie 的 MCP 服务器调用。
 
 它**不是**代理服务，也不启动任何端口。账号池、Key 存储、账号级故障转移、额度休息、模型选择和路由组全部交给 magpie 本身。
+
+## 参考
+
+本插件的核心逻辑参考了 **[yhshzh/dsh-cline-pass](https://github.com/yhshzh/dsh-cline-pass)**（MIT License）：
+
+- 两套路由字段的探测与注入（planner / direct）；
+- 按上游渠道展开候选、`strict` / `preferred` 与首个 token 前故障转移；
+- Cline 模型目录、用量窗口和渠道校验；
+- `probe / validate / test / pin` 这组管理工具的设计。
+
+dsh-cline-pass 是 DeepSeek Harness 的插件；本项目把同样的思路移植到 magpie 的插件接口。两者的账号池实现不同：账号和 Key 由 magpie 管理。
 
 ## 代码结构：从 dsh-cline-pass 到 magpie
 
@@ -60,13 +71,13 @@ magpie plugin add D:\AI\chajian\magpie
 从 git：
 
 ```bash
-magpie plugin add github:xiaokang6/cline-pass-auth
+magpie plugin add github:xiaokang6/magpie-cline-pass
 ```
 
 发布到 npm 后也可以：
 
 ```bash
-magpie plugin add cline-pass-auth
+magpie plugin add magpie-cline-pass
 ```
 
 在 magpie 窗口里：**插件 → 添加插件**，填入文件夹路径或包名，然后在 `Cline Pass` 那一行登录。
@@ -215,7 +226,7 @@ npm test
 sb=$(mktemp -d)
 HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$HOME/.cache \
   MAGPIE_ADDR=127.0.0.1:3499 \
-  magpie plugin add /path/to/cline-pass-auth
+  magpie plugin add /path/to/magpie-cline-pass
 
 HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$HOME/.cache \
   MAGPIE_ADDR=127.0.0.1:3499 \

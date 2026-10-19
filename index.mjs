@@ -11,7 +11,7 @@
  * failover, quota-driven resting, model selection and routing groups — is left
  * to magpie. This plugin is not a proxy and starts no server.
  *
- * @module cline-pass-auth
+ * @module magpie-cline-pass
  */
 import {
   createEngine,
