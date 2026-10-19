@@ -1,8 +1,8 @@
-# opencode-cline-pass-auth
+# cline-pass-auth
 
-[![test](https://github.com/xiaokang6/opencode-cline-pass-auth/actions/workflows/test.yml/badge.svg)](https://github.com/xiaokang6/opencode-cline-pass-auth/actions/workflows/test.yml)
+[![test](https://github.com/xiaokang6/cline-pass-auth/actions/workflows/test.yml/badge.svg)](https://github.com/xiaokang6/cline-pass-auth/actions/workflows/test.yml)
 
-把 **Cline Pass** 订阅接入 [magpie](https://usemagpie.ai)（也兼容 OpenCode）的供应商插件。
+把 **Cline Pass** 订阅接入 [magpie](https://usemagpie.ai) 的供应商插件。
 
 它把 [dsh-cline-pass](https://github.com/yhshzh/dsh-cline-pass) 的核心逻辑搬到了 magpie 的插件接口上：
 
@@ -39,7 +39,7 @@ magpie 调用的钩子：
 
 ## 和 magpie 已有供应商的关系
 
-magpie 自带一个内置的 ClinePass 供应商（id `clinepass`），社区还有 `@magpie-community/opencode-cline-auth`（id `cline`）。这个插件的 id 是 `cline-pass`，三者可以共存：
+magpie 自带一个内置的 ClinePass 供应商（id `clinepass`），社区还有一个 Cline 插件（id `cline`）。这个插件的 id 是 `cline-pass`，三者可以共存：
 
 | 供应商 | 模型在 agent 里的写法 | 特点 |
 | --- | --- | --- |
@@ -60,13 +60,13 @@ magpie plugin add D:\AI\chajian\magpie
 从 git：
 
 ```bash
-magpie plugin add github:xiaokang6/opencode-cline-pass-auth
+magpie plugin add github:xiaokang6/cline-pass-auth
 ```
 
 发布到 npm 后也可以：
 
 ```bash
-magpie plugin add opencode-cline-pass-auth
+magpie plugin add cline-pass-auth
 ```
 
 在 magpie 窗口里：**插件 → 添加插件**，填入文件夹路径或包名，然后在 `Cline Pass` 那一行登录。
@@ -215,7 +215,7 @@ npm test
 sb=$(mktemp -d)
 HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$HOME/.cache \
   MAGPIE_ADDR=127.0.0.1:3499 \
-  magpie plugin add /path/to/opencode-cline-pass-auth
+  magpie plugin add /path/to/cline-pass-auth
 
 HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$HOME/.cache \
   MAGPIE_ADDR=127.0.0.1:3499 \

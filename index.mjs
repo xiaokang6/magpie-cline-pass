@@ -1,5 +1,5 @@
 /**
- * Cline Pass for magpie (and for OpenCode, which ignores magpie's extras).
+ * Cline Pass for magpie.
  *
  * One provider route, `cline-pass`, whose model ids are the short names of the
  * Cline Pass subscription (`cline-pass/deepseek-v4.1-flash` is the agent-facing
@@ -11,7 +11,7 @@
  * failover, quota-driven resting, model selection and routing groups — is left
  * to magpie. This plugin is not a proxy and starts no server.
  *
- * @module opencode-cline-pass-auth
+ * @module cline-pass-auth
  */
 import {
   createEngine,
@@ -68,7 +68,7 @@ const MODEL_CACHE_MS = 5 * 60 * 1000
 /** The bundled fallback list, in provider order. */
 const FALLBACK_MODELS = Object.keys(MODEL_CATALOG)
 
-/** One OpenCode provider plugin. */
+/** One magpie provider plugin. */
 export const ClinePassPlugin = async ({ client, directory } = {}, options = {}) => {
   const store = createStore({
     directory,
