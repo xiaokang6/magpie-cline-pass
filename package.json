@@ -1,6 +1,6 @@
 {
   "name": "magpie-cline-pass",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Cline Pass for magpie, based on dsh-cline-pass: subscription models with per-model upstream probing, pinning and pre-first-token failover.",
   "type": "module",
   "main": "./index.mjs",

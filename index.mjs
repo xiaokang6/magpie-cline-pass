@@ -51,6 +51,7 @@ import {
   prettify,
   runtimeModel,
 } from './lib/catalog.js'
+import { readStoredApiKey } from './lib/authkey.js'
 import { createChatFetch } from './lib/request.js'
 import { createStore, normalizePin, normalizePins } from './lib/store.js'
 import { createTools } from './lib/tools.js'
@@ -86,7 +87,10 @@ export const ClinePassPlugin = async ({ client, directory } = {}, options = {}) 
   }
 
   const engine = createEngine({
-    getKey: () => String(lastAuth?.key ?? ''),
+    // Tools run outside an account scope. Prefer the account magpie last handed
+    // us; fall back to the stored login so a probe works right after a reload,
+    // before the first provider request has populated `lastAuth`.
+    getKey: () => String(lastAuth?.key ?? '') || readStoredApiKey({ directory, provider: PROVIDER }),
     baseURL: API,
     store,
     pinFor: (model) => store.pinOf(model),

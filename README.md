@@ -278,7 +278,7 @@ magpie quota
 
 - 只有 API Key 登录，没有 Cline 的浏览器/OAuth 登录；OAuth 请用社区 `cline` 插件。
 - 模型的窗口/输出上限来自发版时的快照；Cline 新加的模型会先用保守默认值。
-- 钉住能力取决于 Cline 网关实际暴露的渠道。写这个插件时 Cline Pass 的多数模型只报出一个 `openai-compatible-private` 渠道；插件会如实探测和显示，不会凭空造渠道。
+- 钉住能力取决于 Cline 网关实际暴露的渠道，而且**因模型而异**：例如 `glm-5.3` 只报出 `openai-compatible-private` 一个渠道，`deepseek-v4.1-flash-1017` 会报出 15 个（`deepseek`、`alibaba`、`baseten`、`deepinfra`、`fireworks`、`inference-net`、`morph`、`novita`、`parasail`、`pareto`、`particle`、`relace`、`runinfra`、`togetherai`、`wafer`）。先 probe 再钉；插件会如实显示，不会凭空造渠道。
 - 管理工具使用最近一次被 magpie 调用的账号 Key；它不遍历账号池。多账号的日常请求仍由 magpie 路由。
 - `pin` 工具写入的是 magpie 配置目录里的状态文件，不是 magpie 的插件 options；两者都生效，工具写入优先。
 

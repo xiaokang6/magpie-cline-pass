@@ -101,14 +101,14 @@
       const upstreamCell = document.createElement("td");
       const upstreams = makeInput(
         Array.isArray(pin.upstreams) ? pin.upstreams.join(", ") : "",
-        "例如 openai-compatible-private",
+        "例如 deepseek, fireworks, baseten",
       );
       upstreamCell.append(upstreams);
 
       const excludeCell = document.createElement("td");
       const exclude = makeInput(
         Array.isArray(pin.exclude) ? pin.exclude.join(", ") : "",
-        "例如 baseten, fireworks",
+        "例如 wafer, morph",
       );
       excludeCell.append(exclude);
 
