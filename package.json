@@ -1,0 +1,44 @@
+{
+  "name": "opencode-cline-pass-auth",
+  "version": "0.1.0",
+  "description": "Cline Pass for magpie and OpenCode: subscription models with per-model upstream probing, pinning and pre-first-token failover.",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.mjs",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "magpie",
+    "cline",
+    "clinepass",
+    "cline-pass",
+    "llm-provider"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaokang6/opencode-cline-pass-auth.git"
+  },
+  "homepage": "https://github.com/xiaokang6/opencode-cline-pass-auth#readme",
+  "bugs": {
+    "url": "https://github.com/xiaokang6/opencode-cline-pass-auth/issues"
+  },
+  "engines": {
+    "node": ">=20.3.0"
+  },
+  "magpie": {
+    "maxConcurrency": 8
+  }
+}
