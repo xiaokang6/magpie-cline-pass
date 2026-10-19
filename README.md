@@ -1,5 +1,7 @@
 # opencode-cline-pass-auth
 
+[![test](https://github.com/xiaokang6/opencode-cline-pass-auth/actions/workflows/test.yml/badge.svg)](https://github.com/xiaokang6/opencode-cline-pass-auth/actions/workflows/test.yml)
+
 把 **Cline Pass** 订阅接入 [magpie](https://usemagpie.ai)（也兼容 OpenCode）的供应商插件。
 
 它把 [dsh-cline-pass](https://github.com/yhshzh/dsh-cline-pass) 的核心逻辑搬到了 magpie 的插件接口上：
