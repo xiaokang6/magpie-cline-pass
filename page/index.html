@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cline Pass 钉住</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="_magpie/bridge.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="head">
+    <div>
+      <h1>Cline Pass 钉住</h1>
+      <p class="lede">给每个模型指定 Cline 网关背后的上游渠道。普通使用保持“自动”即可。</p>
+    </div>
+    <div class="actions">
+      <button id="save" class="primary" type="button">保存钉住</button>
+      <button id="reload" type="button">重新读取</button>
+      <button id="clear" class="danger" type="button">全部清除</button>
+    </div>
+  </header>
+
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>模型</th>
+          <th>模式</th>
+          <th>上游渠道（按顺序）</th>
+          <th>排除</th>
+          <th>排序</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <section class="notes">
+    <h2>渠道列表从哪来？</h2>
+    <p>先让 agent 调用 <code>magpie_probe</code>（从 GitHub 安装时是 <code>magpie-cline-pass_probe</code>）探测：</p>
+    <pre><code>magpie_probe model=glm-5.3</code></pre>
+    <p>探测和校验结果写在插件状态里；这个页面只编辑钉住规则。保存后如果没生效，到 <b>插件 → 已安装</b> 把本插件关掉再打开。</p>
+    <p class="muted">
+      <b>strict</b>：每个渠道单独试，不换渠道。
+      <b>preferred</b>：按顺序试，首个 token 前失败就换下一个。
+      <b>排除</b> 会编译成 allow-list。
+      排序可选 cost / ttft / tps，留空表示不排序。
+    </p>
+  </section>
+
+  <details>
+    <summary>当前 options</summary>
+    <pre id="options"></pre>
+  </details>
+</body>
+</html>
