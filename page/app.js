@@ -105,6 +105,13 @@
       );
       upstreamCell.append(upstreams);
 
+      const hasCell = document.createElement("td");
+      const has = makeInput(
+        Array.isArray(pin.has) ? pin.has.join(", ") : "",
+        "例如 vision, implicit-caching",
+      );
+      hasCell.append(has);
+
       const excludeCell = document.createElement("td");
       const exclude = makeInput(
         Array.isArray(pin.exclude) ? pin.exclude.join(", ") : "",
@@ -127,7 +134,7 @@
         if (mode.value === "auto") upstreams.value = "";
       });
 
-      tr.append(modelCell, modeCell, upstreamCell, excludeCell, sortCell);
+      tr.append(modelCell, modeCell, upstreamCell, hasCell, excludeCell, sortCell);
       rows.append(tr);
     }
     optionsView.textContent = JSON.stringify(options, null, 2);
@@ -163,12 +170,14 @@
       delete pins[key];
       const mode = tr.querySelector("td.mode select").value;
       const upstreams = splitList(tr.children[2].querySelector("input").value);
-      const exclude = splitList(tr.children[3].querySelector("input").value);
-      const sort = tr.children[4].querySelector("select").value;
-      if (mode === "auto" && upstreams.length === 0 && exclude.length === 0 && sort === "none") continue;
+      const has = splitList(tr.children[3].querySelector("input").value);
+      const exclude = splitList(tr.children[4].querySelector("input").value);
+      const sort = tr.children[5].querySelector("select").value;
+      if (mode === "auto" && upstreams.length === 0 && has.length === 0 && exclude.length === 0 && sort === "none") continue;
       const pin = {};
       if (mode !== "auto") pin.pinMode = mode;
       if (upstreams.length > 0) pin.upstreams = upstreams;
+      if (has.length > 0) pin.has = has;
       if (exclude.length > 0) pin.exclude = exclude;
       if (sort !== "none") pin.sort = sort;
       if (Object.keys(pin).length > 0) pins[key] = pin;

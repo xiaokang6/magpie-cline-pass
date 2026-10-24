@@ -67,8 +67,8 @@ test('history is bounded and newest first', () => {
 
 test('normalizePins drops half-written entries and normalizes keys', () => {
   assert.deepEqual(normalizePins({
-    'cline-pass/glm-5.3': { upstreams: ['zai'], pinMode: 'strict' },
+    'cline-pass/glm-5.3': { upstreams: ['zai'], has: ['vision', 'implicit-caching'], pinMode: 'strict' },
     broken: 'nope',
     empty: {},
-  }), { 'glm-5.3': { upstreams: ['zai'], pinMode: 'strict' } })
+  }), { 'glm-5.3': { upstreams: ['zai'], has: ['vision', 'implicit-caching'], pinMode: 'strict' } })
 })

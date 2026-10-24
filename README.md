@@ -133,10 +133,33 @@ GET https://api.cline.bot/api/v1/users/me/plan/usage-limits
 
 Cline 的网关前面有两套路由，钉住字段的写法不同：
 
-- **planner**（Vercel AI Gateway）：`providerOptions.gateway.only/order/sort`；
+- **planner**（Vercel AI Gateway）：`providerOptions.gateway.only/order/sort/has`；
 - **direct**（OpenRouter）：顶层 `provider.only/order/ignore/sort`。
 
 插件默认**同时写两套**。每套路由都会忽略对方字段；只写上次探测到的那一套，会在路由切换时悄悄失效。
+
+### 关键：only 要和 has 一起用
+
+只写 `only`，Cline 的网关不一定执行它。实测同一把 key、同一个 Pass 模型：
+
+- 只发 `only: ["deepseek"]`，回答来自 `openai-compatible-private`；
+- 发 `only: ["deepseek"]` + `has: ["vision", "implicit-caching"]`，`finalProvider` 才是 `deepseek`；
+- 发 `only: ["not-a-real-provider"]` + `has: [...]`，网关报 `No available providers match the 'only' filter`，不会继续生成。
+
+原因是网关前面还有一层私有落点，它会覆盖客户端的路由限制；`has` 是**能力过滤**（不是提示词），把它加上之后请求才会进入真正执行 `only` 的路由。固定写法是 `providerOptions` 在请求体顶层：
+
+```json
+{
+  "providerOptions": {
+    "gateway": {
+      "only": ["deepseek"],
+      "has": ["vision", "implicit-caching"]
+    }
+  }
+}
+```
+
+不同模型支持的能力不同，所以 `has` 要做成每个模型可配置；先 `probe`/`test`，确认 `actual` 真的是你钉的渠道。
 
 ### 图形界面：Cline Pass 钉住
 
@@ -144,7 +167,7 @@ Cline 的网关前面有两套路由，钉住字段的写法不同：
 
 1. 打开页面，每个模型一行；
 2. 模式选「自动 / strict / preferred」；
-3. 在「上游渠道」里填渠道名（逗号分隔，按尝试顺序），「排除」填不想用的渠道，「排序」选 cost / ttft / tps；
+3. 在「上游渠道」里填渠道名（逗号分隔，按尝试顺序），「能力过滤 has」填 `vision, implicit-caching`（让 only 生效），「排除」填不想用的渠道，「排序」选 cost / ttft / tps；
 4. 点「保存钉住」。
 
 渠道名先探测，见下面的「命令行直接探测」。页面只编辑插件 options；保存后如果请求仍在用旧规则，到 **插件 → 已安装** 把本插件关掉再打开。页面不联网，也不读取插件的探测状态，所以它只负责「钉住规则」，不负责「发现渠道」。
@@ -159,14 +182,17 @@ cd D:\AI\chajian\magpie
 # 看实际工具名
 node scripts\magpie-tool.mjs --list
 
-# 探测 glm-5.3 有哪些渠道
-node scripts\magpie-tool.mjs magpie_probe model=glm-5.3
+# 探测 deepseek-v4.1-flash-1017 有哪些渠道（has 让 only 进入真正的路由）
+node scripts\magpie-tool.mjs magpie_probe model=deepseek-v4.1-flash-1017 has=vision,implicit-caching
 
 # 逐个校验渠道（探测之后）
-node scripts\magpie-tool.mjs magpie_validate model=glm-5.3
+node scripts\magpie-tool.mjs magpie_validate model=deepseek-v4.1-flash-1017
 
-# 保存钉住（可选）
-node scripts\magpie-tool.mjs magpie_pin model=glm-5.3 upstreams=openai-compatible-private pinMode=strict
+# 保存钉住
+node scripts\magpie-tool.mjs magpie_pin model=deepseek-v4.1-flash-1017 upstreams=deepseek has=vision,implicit-caching pinMode=strict
+
+# 验证实际服务的渠道
+node scripts\magpie-tool.mjs magpie_test model=deepseek-v4.1-flash-1017
 ```
 
 参数用 `key=value`，数组用逗号分隔（如 `upstreams=zai,baseten`），也接受一个 JSON 对象。脚本只是向 `http://127.0.0.1:3425/mcp/magpie/tools` 发 MCP 请求；magpie 没启动时会报连接失败。
@@ -178,16 +204,16 @@ node scripts\magpie-tool.mjs magpie_pin model=glm-5.3 upstreams=openai-compatibl
 需要先让 magpie 知道哪个账号的 Key，随便发一次请求或让 magpie 刷新一次账号即可；工具使用最近一次登录的账号。
 
 ```text
-<short>_probe    model=glm-5.3
-<short>_validate model=glm-5.3
-<short>_test     model=glm-5.3 [upstream]
-<short>_pin      model=glm-5.3 upstreams=["zai","baseten"] pinMode=preferred
+<short>_probe    model=deepseek-v4.1-flash-1017 has=["vision","implicit-caching"]
+<short>_validate model=deepseek-v4.1-flash-1017
+<short>_test     model=deepseek-v4.1-flash-1017 [upstream]
+<short>_pin      model=deepseek-v4.1-flash-1017 upstreams=["deepseek"] has=["vision","implicit-caching"] pinMode=strict
 ```
 
 `<short>` 是 magpie 给插件起的短名，运行 `magpie plugin` 可以看到实际工具名：从 GitHub 安装时是 `magpie-cline-pass_probe`，从名为 `magpie` 的本地文件夹安装时是 `magpie_probe`。
 
-- **probe**：先正常问一次，读出实际服务的渠道；再对两套路由各发一次“不存在的渠道”请求，让网关在花 token 之前报出可用渠道列表。最多 3 个很小的真实请求。
-- **validate**：对每个已知渠道发一个 `max_tokens: 64` 的小请求，只有响应里报告服务渠道等于钉住的渠道才算 `ok`。一个 200 不算证据：未知的 `only` 会被路由静默丢弃。每个渠道一次真实请求，并发 5。
+- **probe**：先正常问一次，读出实际服务的渠道；再对两套路由各发一次“不存在的渠道”请求，让网关在花 token 之前报出可用渠道列表。带 `has` 时走能力过滤后的真实路由，能拿到完整渠道列表。最多 3 个很小的真实请求。
+- **validate**：对每个已知渠道发一个 `max_tokens: 64` 的小请求；请求会带上该模型 pin 里的 `has`，只有响应里报告服务渠道等于钉住的渠道才算 `ok`。一个 200 不算证据：未知的 `only` 会被路由静默丢弃。每个渠道一次真实请求，并发 5。
 - **test**：按当前保存的钉住配置发一个小请求，报告 target / actual / adherence。不改任何配置。
 - **pin**：把某个模型的钉住配置写进状态文件；`clear: true` 删除，回退到插件 options。
 
@@ -203,8 +229,12 @@ node scripts\magpie-tool.mjs magpie_pin model=glm-5.3 upstreams=openai-compatibl
 ```bash
 magpie plugin options <插件名> '{
   "pins": {
-    "glm-5.3": { "upstreams": ["zai", "baseten"], "pinMode": "preferred" },
-    "kimi-k3": { "exclude": ["openrouter"], "pinMode": "strict" }
+    "deepseek-v4.1-flash-1017": {
+      "upstreams": ["deepseek"],
+      "has": ["vision", "implicit-caching"],
+      "pinMode": "strict"
+    },
+    "glm-5.3": { "upstreams": ["zai", "baseten"], "pinMode": "preferred" }
   }
 }'
 ```

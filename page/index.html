@@ -30,6 +30,7 @@
           <th>模型</th>
           <th>模式</th>
           <th>上游渠道（按顺序）</th>
+          <th>能力过滤 has</th>
           <th>排除</th>
           <th>排序</th>
         </tr>
@@ -40,13 +41,15 @@
 
   <section class="notes">
     <h2>渠道列表从哪来？</h2>
-    <p>先让 agent 调用 <code>magpie_probe</code>（从 GitHub 安装时是 <code>magpie-cline-pass_probe</code>）探测：</p>
-    <pre><code>magpie_probe model=glm-5.3</code></pre>
+    <p>先探测渠道。最直接的是命令行（不需要给 agent 配 MCP）：</p>
+    <pre><code>node scripts\magpie-tool.mjs magpie_probe model=deepseek-v4.1-flash-1017 has=vision,implicit-caching</code></pre>
+    <p>让 agent 调用时是 <code>magpie_probe</code>（从 GitHub 安装时是 <code>magpie-cline-pass_probe</code>）。</p>
     <p>探测和校验结果写在插件状态里；这个页面只编辑钉住规则。保存后如果没生效，到 <b>插件 → 已安装</b> 把本插件关掉再打开。</p>
     <p class="muted">
       <b>strict</b>：每个渠道单独试，不换渠道。
       <b>preferred</b>：按顺序试，首个 token 前失败就换下一个。
       <b>排除</b> 会编译成 allow-list。
+      <b>能力过滤 has</b> 是让 Cline 真正执行 <code>only</code> 的关键：只写上游渠道而不写 has 时，网关可能落到私有上游并忽略 only。常见值：<code>vision, implicit-caching</code>。
       排序可选 cost / ttft / tps，留空表示不排序。
     </p>
   </section>

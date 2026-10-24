@@ -25,9 +25,9 @@ function usage() {
 Examples:
   node scripts/magpie-tool.mjs magpie_status
   node scripts/magpie-tool.mjs magpie_models filter=glm
-  node scripts/magpie-tool.mjs magpie_probe model=glm-5.3
-  node scripts/magpie-tool.mjs magpie_validate model=glm-5.3
-  node scripts/magpie-tool.mjs magpie_pin model=glm-5.3 upstreams=openai-compatible-private pinMode=strict
+  node scripts/magpie-tool.mjs magpie_probe model=deepseek-v4.1-flash-1017 has=vision,implicit-caching
+  node scripts/magpie-tool.mjs magpie_validate model=deepseek-v4.1-flash-1017
+  node scripts/magpie-tool.mjs magpie_pin model=deepseek-v4.1-flash-1017 upstreams=deepseek has=vision,implicit-caching pinMode=strict
 
 Environment:
   MAGPIE_MCP_URL  default ${DEFAULT_URL}`)
@@ -56,7 +56,7 @@ async function rpc(method, params) {
 }
 
 function parseValue(key, value) {
-  if (key === 'upstreams' || key === 'exclude') {
+  if (key === 'upstreams' || key === 'exclude' || key === 'has') {
     return value.split(',').map((item) => item.trim()).filter(Boolean)
   }
   if (value === 'true') return true

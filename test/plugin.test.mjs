@@ -69,7 +69,7 @@ test('options pins flow into the provider fetch', async () => {
   }
   try {
     const hooks = await ClinePassPlugin({ directory: '' }, {
-      pins: { 'glm-5.3': { upstreams: ['zai'], pinMode: 'strict' } },
+      pins: { 'glm-5.3': { upstreams: ['zai'], has: ['vision', 'implicit-caching'], pinMode: 'strict' } },
     })
     const loader = await hooks.auth.loader(async () => ({ type: 'api', key: 'sk-test' }))
     const response = await loader.fetch('https://api.cline.bot/api/v1/chat/completions', {
@@ -81,6 +81,7 @@ test('options pins flow into the provider fetch', async () => {
     assert.equal(calls.length, 1)
     assert.deepEqual(calls[0].provider.only, ['z-ai'])
     assert.deepEqual(calls[0].providerOptions.gateway.only, ['zai'])
+    assert.deepEqual(calls[0].providerOptions.gateway.has, ['vision', 'implicit-caching'])
   } finally {
     globalThis.fetch = realFetch
   }

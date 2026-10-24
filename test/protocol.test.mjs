@@ -23,11 +23,33 @@ test('model keys and API ids round-trip', () => {
   assert.equal(apiIdOf('cline-pass/glm-5.3'), 'cline-pass/glm-5.3')
 })
 
-test('strict pin writes both spellings', () => {
+test('strict pin writes both spellings and the capability filter', () => {
   const meta = { channels: { planner: ['baseten', 'deepseek'], direct: ['baseten', 'deepseek'] } }
-  const body = injectPrefs({ model: 'x' }, meta, { upstream: 'baseten', strict: true, sort: null, orderRest: [], excludeList: [] })
+  const body = injectPrefs({ model: 'x' }, meta, {
+    upstream: 'baseten',
+    strict: true,
+    sort: null,
+    orderRest: [],
+    excludeList: [],
+    has: ['vision', 'implicit-caching'],
+  })
   assert.deepEqual(body.providerOptions.gateway.only, ['baseten'])
+  assert.deepEqual(body.providerOptions.gateway.has, ['vision', 'implicit-caching'])
   assert.deepEqual(body.provider.only, ['baseten'])
+  assert.equal(body.provider.has, undefined)
+})
+
+test('a pin without has writes no gateway.has', () => {
+  const meta = { channels: { planner: ['baseten'], direct: ['baseten'] } }
+  const body = injectPrefs({ model: 'x' }, meta, { upstream: 'baseten', strict: true, sort: null, orderRest: [], excludeList: [] })
+  assert.equal(body.providerOptions.gateway.has, undefined)
+})
+
+test('an existing gateway.has survives when the attempt names none', () => {
+  const meta = { channels: { planner: ['baseten'], direct: ['baseten'] } }
+  const original = { model: 'x', providerOptions: { gateway: { has: ['vision'] } } }
+  const body = injectPrefs(original, meta, { upstream: 'baseten', strict: true, sort: null, orderRest: [], excludeList: [] })
+  assert.deepEqual(body.providerOptions.gateway.has, ['vision'])
 })
 
 test('preferred pin writes order, and aliases Z.AI per pipeline', () => {
@@ -62,6 +84,9 @@ test('no pin leaves the body untouched', () => {
 })
 
 test('buildAttempts expands preferred pins and drops excluded candidates', () => {
+  const withHas = buildAttempts({ upstreams: ['a'], pinMode: 'strict', has: ['vision', 'implicit-caching'] })
+  assert.deepEqual(withHas[0].has, ['vision', 'implicit-caching'])
+
   const strict = buildAttempts({ upstreams: ['a', 'b'], pinMode: 'strict' })
   assert.equal(strict.length, 2)
   assert.deepEqual(strict[0].orderRest, [])
@@ -91,9 +116,10 @@ test('pin adherence distinguishes adopted, fallback, violation and unresolved', 
 })
 
 test('pin warnings explain an exclusion that cannot be expressed', () => {
-  assert.match(pinWarnings({ upstream: null, excludeList: ['a'] }, { upstreams: [] })[0], /excludeUnresolved/)
-  assert.match(pinWarnings({ upstream: null, excludeList: ['a'] }, { upstreams: ['a'] })[0], /PIN_UNRESOLVED/)
-  assert.deepEqual(pinWarnings({ upstream: 'a', excludeList: ['b'] }, { upstreams: ['a', 'b'] }), [])
+  assert.match(pinWarnings({ upstream: null, excludeList: ['a'], has: ['vision'] }, { upstreams: [] })[0], /excludeUnresolved/)
+  assert.match(pinWarnings({ upstream: null, excludeList: ['a'], has: ['vision'] }, { upstreams: ['a'] })[0], /PIN_UNRESOLVED/)
+  assert.match(pinWarnings({ upstream: 'a', excludeList: ['b'] }, { upstreams: ['a', 'b'] })[0], /pin-without-has/)
+  assert.deepEqual(pinWarnings({ upstream: 'a', excludeList: ['b'], has: ['vision'] }, { upstreams: ['a', 'b'] }), [])
 })
 
 test('parseRouting reads the planner and the direct pipelines', () => {
